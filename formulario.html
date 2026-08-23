@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Cadastro Keeta - Formulário</title>
+    <title>Keeta - Cadastro de Loja</title>
     <style>
         * {
             margin: 0;
@@ -12,8 +12,8 @@
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #f5f5f5;
             min-height: 100vh;
             padding: 20px;
         }
@@ -22,53 +22,58 @@
             max-width: 600px;
             margin: 0 auto;
             background: white;
-            border-radius: 20px;
-            padding: 40px;
-            box-shadow: 0 25px 80px rgba(0,0,0,0.3);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
         }
 
-        .header {
+        .logo {
             text-align: center;
             margin-bottom: 30px;
         }
 
-        .header img {
-            width: 80px;
-            height: 80px;
-            margin-bottom: 15px;
+        .logo h1 {
+            color: #FF6B00;
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 5px;
         }
 
-        .header h1 {
-            color: #333;
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-
-        .header p {
+        .logo p {
             color: #666;
             font-size: 14px;
         }
 
+        .section-title {
+            color: #FF6B00;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 25px 0 15px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #FF6B00;
+        }
+
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
-            color: #444;
+            margin-bottom: 6px;
+            color: #333;
             font-weight: 600;
             font-size: 14px;
         }
 
         input[type="text"],
         input[type="tel"],
+        input[type="email"],
         select,
         textarea {
             width: 100%;
-            padding: 14px 18px;
-            border: 2px solid #e8e8e8;
-            border-radius: 12px;
+            padding: 14px 16px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
             font-size: 15px;
             transition: all 0.3s ease;
             background: #fafafa;
@@ -78,9 +83,9 @@
         select:focus,
         textarea:focus {
             outline: none;
-            border-color: #667eea;
+            border-color: #FF6B00;
             background: white;
-            box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+            box-shadow: 0 0 0 3px rgba(255, 107, 0, 0.1);
         }
 
         .row {
@@ -89,29 +94,128 @@
             gap: 15px;
         }
 
-        .section-title {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+        .hint {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .taxas-group {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .taxa-option {
+            display: flex;
+            align-items: center;
+            gap: 8px;
             padding: 12px 20px;
-            border-radius: 12px;
-            margin: 25px 0 20px 0;
-            font-weight: 700;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .taxa-option:hover {
+            border-color: #FF6B00;
+        }
+
+        .taxa-option input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            accent-color: #FF6B00;
+        }
+
+        .taxa-option.selected {
+            border-color: #FF6B00;
+            background: rgba(255, 107, 0, 0.05);
+        }
+
+        .checkbox-group {
             display: flex;
             align-items: center;
             gap: 10px;
+            margin-top: 15px;
         }
 
-        .section-title:first-of-type {
-            margin-top: 0;
+        .checkbox-group input[type="checkbox"] {
+            width: 22px;
+            height: 22px;
+            accent-color: #FF6B00;
+        }
+
+        .foto-section {
+            margin: 20px 0;
+        }
+
+        .foto-item {
+            margin-bottom: 20px;
+            padding: 20px;
+            border: 2px dashed #ddd;
+            border-radius: 12px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .foto-item:hover {
+            border-color: #FF6B00;
+            background: rgba(255, 107, 0, 0.02);
+        }
+
+        .foto-item label {
+            cursor: pointer;
+            margin-bottom: 10px;
+        }
+
+        .foto-item input[type="file"] {
+            display: none;
+        }
+
+        .foto-preview {
+            max-width: 100%;
+            max-height: 200px;
+            margin-top: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .foto-preview.active {
+            display: block;
+        }
+
+        .remove-foto {
+            color: #e74c3c;
+            cursor: pointer;
+            font-size: 13px;
+            margin-top: 8px;
+            display: none;
+        }
+
+        .remove-foto.active {
+            display: inline-block;
+        }
+
+        .envio-info {
+            background: #fff8f0;
+            border: 1px solid #FF6B00;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 25px 0;
+            text-align: center;
+        }
+
+        .envio-info p {
+            color: #FF6B00;
+            font-size: 14px;
+            font-weight: 600;
         }
 
         button {
             width: 100%;
             padding: 18px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #FF6B00;
             color: white;
             border: none;
             border-radius: 12px;
@@ -119,16 +223,13 @@
             font-weight: 700;
             cursor: pointer;
             transition: all 0.3s ease;
-            margin-top: 25px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            margin-top: 10px;
         }
 
         button:hover {
+            background: #e66000;
             transform: translateY(-2px);
-            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 8px 25px rgba(255, 107, 0, 0.3);
         }
 
         button:disabled {
@@ -137,45 +238,70 @@
             transform: none;
         }
 
-        .result {
-            margin-top: 20px;
-            padding: 18px;
-            border-radius: 12px;
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+        }
+
+        .footer p {
+            color: #999;
+            font-size: 13px;
+        }
+
+        .footer .keeta-footer {
+            color: #FF6B00;
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        /* Modal */
+        .modal {
             display: none;
-            font-size: 15px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
         }
 
-        .result.success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        .modal.active {
+            display: flex;
         }
 
-        .result.error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
         }
 
-        .required::after {
-            content: " *";
-            color: #e74c3c;
+        .modal-content .icon {
+            font-size: 60px;
+            margin-bottom: 15px;
         }
 
-        .api-config {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 25px;
-        }
-
-        .api-config label {
+        .modal-content h2 {
+            color: #333;
             margin-bottom: 10px;
         }
 
-        .api-config input {
-            font-family: monospace;
-            font-size: 13px;
+        .modal-content p {
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .modal-content button {
+            margin-top: 0;
+            padding: 12px 30px;
+            width: auto;
         }
 
         .loading {
@@ -198,144 +324,253 @@
             }
             
             .container {
-                padding: 25px;
+                padding: 20px;
+            }
+
+            .taxas-group {
+                flex-direction: column;
             }
         }
     </style>
 </head>
 <body>
     <div class="container">
-        <div class="header">
-            <h1>📋 Cadastro de Loja Keeta</h1>
-            <p>Preencha os dados do restaurante para cadastro na plataforma</p>
-        </div>
-
-        <div class="api-config">
-            <label>🔗 URL da API:</label>
-            <input type="text" id="apiUrl" value="https://keeta-telegram-api-production.up.railway.app/api/enviar-cadastro" placeholder="URL da API">
+        <div class="logo">
+            <h1>keeta</h1>
+            <p>Cadastro de Loja</p>
         </div>
 
         <form id="cadastroForm">
-            <div class="section-title">📊 Informações Gerais</div>
+            <div class="section-title">Informações da Loja</div>
+            
             <div class="row">
                 <div class="form-group">
-                    <label>ID do Cliente</label>
+                    <label>ID do Cliente:</label>
                     <input type="text" id="idCliente" placeholder="Ex: 51137965">
                 </div>
                 <div class="form-group">
-                    <label>Vendedor</label>
+                    <label>Vendedor:</label>
                     <input type="text" id="vendedor" placeholder="Ex: Heraclito">
                 </div>
             </div>
 
-            <div class="section-title">🏪 Dados do Restaurante</div>
             <div class="form-group">
-                <label class="required">Nome do Restaurante</label>
+                <label>Nome do Restaurante:</label>
                 <input type="text" id="restaurante" placeholder="Ex: Santa Arepa" required>
             </div>
+
             <div class="form-group">
-                <label>Razão Social</label>
+                <label>Razão Social:</label>
                 <input type="text" id="razaoSocial" placeholder="Ex: Alexandra Arciniegas Gutierrez ME">
             </div>
 
-            <div class="section-title">👤 Proprietário e Contatos</div>
             <div class="form-group">
-                <label class="required">Proprietário</label>
+                <label>Nome do Proprietário:</label>
                 <input type="text" id="proprietario" placeholder="Ex: Alexandra" required>
             </div>
+
             <div class="row">
                 <div class="form-group">
-                    <label>Tel. Proprietário</label>
+                    <label>Telefone do Proprietário:</label>
                     <input type="tel" id="telProprietario" placeholder="(48) 98866-9947">
                 </div>
                 <div class="form-group">
-                    <label>Tel. Loja</label>
+                    <label>Telefone da Loja:</label>
                     <input type="tel" id="telLoja" placeholder="(48) 8880-3367">
                 </div>
             </div>
 
-            <div class="section-title">📄 Documentos</div>
             <div class="row">
                 <div class="form-group">
-                    <label class="required">CNPJ</label>
+                    <label>CNPJ:</label>
                     <input type="text" id="cnpj" placeholder="60.453.207/0001-43" required>
                 </div>
                 <div class="form-group">
-                    <label>CPF</label>
+                    <label>CPF do Proprietário:</label>
                     <input type="text" id="cpf" placeholder="802.448.169-30">
                 </div>
             </div>
 
-            <div class="section-title">🏦 Dados Bancários</div>
+            <div class="section-title">Dados Bancários</div>
+            <p class="hint">A conta deve ser do mesmo CNPJ da loja.</p>
+
             <div class="row">
                 <div class="form-group">
-                    <label>Banco</label>
+                    <label>Banco:</label>
                     <input type="text" id="banco" placeholder="197">
                 </div>
                 <div class="form-group">
-                    <label>Agência</label>
+                    <label>Agência:</label>
                     <input type="text" id="agencia" placeholder="1">
                 </div>
             </div>
+
             <div class="row">
                 <div class="form-group">
-                    <label>Conta</label>
+                    <label>Conta Corrente:</label>
                     <input type="text" id="conta" placeholder="31775638-5">
                 </div>
                 <div class="form-group">
-                    <label>Titular</label>
+                    <label>Nome da Conta Corrente:</label>
                     <input type="text" id="titular" placeholder="Alexandra Arciniegas Gutierrez">
                 </div>
             </div>
 
-            <div class="section-title">💻 Sistema e Taxas</div>
-            <div class="row">
-                <div class="form-group">
-                    <label>Sistema</label>
-                    <select id="sistema">
-                        <option value="">Selecione...</option>
-                        <option value="iFood">iFood</option>
-                        <option value="Keeta">Keeta</option>
-                        <option value="Outro">Outro</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Taxa Keeta</label>
-                    <input type="text" id="taxaKeeta" placeholder="12%">
-                </div>
-            </div>
             <div class="form-group">
-                <label>Taxa iFood</label>
-                <input type="text" id="taxaIfood" placeholder="18%">
+                <label>Email da Loja:</label>
+                <input type="email" id="email" placeholder="loja@email.com">
             </div>
 
-            <div class="section-title">📝 Observações</div>
             <div class="form-group">
-                <textarea id="observacoes" rows="4" placeholder="Observações adicionais sobre o cadastro..."></textarea>
+                <label>Sistema utilizado:</label>
+                <select id="sistema">
+                    <option value="">Selecione...</option>
+                    <option value="iFood">iFood</option>
+                    <option value="Keeta">Keeta</option>
+                    <option value="Outro">Outro</option>
+                </select>
+            </div>
+
+            <div class="section-title">Taxas e Condições</div>
+
+            <label>Taxa Fechada com o Merchant:</label>
+            <div class="taxas-group">
+                <div class="taxa-option" onclick="selectTaxa(this, '13%')">
+                    <input type="radio" name="taxaKeeta" value="13%" id="taxa13">
+                    <label for="taxa13">13%</label>
+                </div>
+                <div class="taxa-option" onclick="selectTaxa(this, '16%')">
+                    <input type="radio" name="taxaKeeta" value="16%" id="taxa16">
+                    <label for="taxa16">16%</label>
+                </div>
+                <div class="taxa-option" onclick="selectTaxa(this, '18%')">
+                    <input type="radio" name="taxaKeeta" value="18%" id="taxa18">
+                    <label for="taxa18">18%</label>
+                </div>
+            </div>
+
+            <div class="checkbox-group">
+                <input type="checkbox" id="isenção" name="isenção">
+                <label for="isenção">Teve isenção de taxa de antecipação</label>
+            </div>
+
+            <div class="section-title">Fotos da Loja</div>
+            <p class="hint">Tire fotos nítidas de cada item.</p>
+
+            <div class="foto-section">
+                <div class="foto-item" onclick="document.getElementById('fotoFaixa').click()">
+                    <label>Foto da Faixa (Fachada)</label>
+                    <p class="hint">Toque para tirar foto ou selecionar<br>Formatos: JPG, PNG, HEIC</p>
+                    <input type="file" id="fotoFaixa" accept="image/*" onchange="previewFoto(this, 'previewFaixa', 'removeFaixa')">
+                    <img id="previewFaixa" class="foto-preview" alt="Pré-visualização da faixa">
+                    <span id="removeFaixa" class="remove-foto" onclick="removeFoto(event, 'fotoFaixa', 'previewFaixa', 'removeFaixa')">× Remover</span>
+                </div>
+
+                <div class="foto-item" onclick="document.getElementById('fotoInterior').click()">
+                    <label>Foto do Interior da Loja</label>
+                    <p class="hint">Toque para tirar foto ou selecionar<br>Formatos: JPG, PNG, HEIC</p>
+                    <input type="file" id="fotoInterior" accept="image/*" onchange="previewFoto(this, 'previewInterior', 'removeInterior')">
+                    <img id="previewInterior" class="foto-preview" alt="Pré-visualização do interior">
+                    <span id="removeInterior" class="remove-foto" onclick="removeFoto(event, 'fotoInterior', 'previewInterior', 'removeInterior')">× Remover</span>
+                </div>
+
+                <div class="foto-item" onclick="document.getElementById('fotoCardapio').click()">
+                    <label>Foto do Cardápio</label>
+                    <p class="hint">Toque para tirar foto ou selecionar<br>Formatos: JPG, PNG, HEIC</p>
+                    <input type="file" id="fotoCardapio" accept="image/*" onchange="previewFoto(this, 'previewCardapio', 'removeCardapio')">
+                    <img id="previewCardapio" class="foto-preview" alt="Pré-visualização do cardápio">
+                    <span id="removeCardapio" class="remove-foto" onclick="removeFoto(event, 'fotoCardapio', 'previewCardapio', 'removeCardapio')">× Remover</span>
+                </div>
+            </div>
+
+            <div class="envio-info">
+                <p>🚀 Ao enviar, os dados vão automaticamente para o grupo do Telegram.</p>
             </div>
 
             <button type="submit" id="btnEnviar">
-                <span>📨 Enviar Cadastro para Telegram</span>
+                <span>Enviar Cadastro</span>
             </button>
         </form>
 
-        <div id="resultado" class="result"></div>
+        <div class="footer">
+            <p class="keeta-footer">keeta</p>
+            <p>Feito pra você, onde estiver.</p>
+        </div>
+    </div>
+
+    <!-- Modal Sucesso -->
+    <div class="modal" id="modalSucesso">
+        <div class="modal-content">
+            <div class="icon">😊</div>
+            <h2>Cadastro Enviado!</h2>
+            <p>Os dados foram enviados automaticamente para o grupo do Telegram com sucesso!</p>
+            <button onclick="fecharModal('modalSucesso')">OK</button>
+        </div>
+    </div>
+
+    <!-- Modal Erro -->
+    <div class="modal" id="modalErro">
+        <div class="modal-content">
+            <div class="icon">😕</div>
+            <h2>Erro no Envio</h2>
+            <p id="erroMensagem">Não foi possível enviar os dados. Tente novamente.</p>
+            <button onclick="fecharModal('modalErro')">OK</button>
+        </div>
     </div>
 
     <script>
+        // URL da API
+        const API_URL = 'https://keeta-telegram-api-production.up.railway.app/api/enviar-cadastro';
+
+        // Selecionar taxa
+        function selectTaxa(element, valor) {
+            document.querySelectorAll('.taxa-option').forEach(el => el.classList.remove('selected'));
+            element.classList.add('selected');
+            element.querySelector('input').checked = true;
+        }
+
+        // Preview de foto
+        function previewFoto(input, previewId, removeId) {
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById(previewId).src = e.target.result;
+                    document.getElementById(previewId).classList.add('active');
+                    document.getElementById(removeId).classList.add('active');
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        // Remover foto
+        function removeFoto(event, inputId, previewId, removeId) {
+            event.stopPropagation();
+            document.getElementById(inputId).value = '';
+            document.getElementById(previewId).src = '';
+            document.getElementById(previewId).classList.remove('active');
+            document.getElementById(removeId).classList.remove('active');
+        }
+
+        // Fechar modal
+        function fecharModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Mostrar modal
+        function mostrarModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        // Enviar formulário
         document.getElementById('cadastroForm').addEventListener('submit', async function(e) {
             e.preventDefault();
             
             const btn = document.getElementById('btnEnviar');
-            const resultado = document.getElementById('resultado');
             const btnText = btn.querySelector('span');
             
-            // Desabilitar botão e mostrar loading
             btn.disabled = true;
             btnText.innerHTML = '<div class="loading"></div> Enviando...';
-            resultado.style.display = 'none';
 
-            // Coletar dados do formulário
             const dados = {
                 idCliente: document.getElementById('idCliente').value,
                 vendedor: document.getElementById('vendedor').value,
@@ -350,15 +585,14 @@
                 agencia: document.getElementById('agencia').value,
                 conta: document.getElementById('conta').value,
                 titular: document.getElementById('titular').value,
+                email: document.getElementById('email').value,
                 sistema: document.getElementById('sistema').value,
-                taxaKeeta: document.getElementById('taxaKeeta').value,
-                taxaIfood: document.getElementById('taxaIfood').value,
-                observacoes: document.getElementById('observacoes').value
+                taxaKeeta: document.querySelector('input[name="taxaKeeta"]:checked')?.value || '',
+                isencao: document.getElementById('isenção').checked ? 'Sim' : 'Não'
             };
 
             try {
-                const apiUrl = document.getElementById('apiUrl').value;
-                const response = await fetch(apiUrl, {
+                const response = await fetch(API_URL, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -368,37 +602,26 @@
 
                 const data = await response.json();
 
-                resultado.style.display = 'block';
                 if (data.success) {
-                    resultado.className = 'result success';
-                    resultado.innerHTML = `
-                        <strong>✅ Sucesso!</strong><br>
-                        ${data.message}<br>
-                        <small>Message ID: ${data.telegramMessageId}</small>
-                    `;
+                    mostrarModal('modalSucesso');
                     document.getElementById('cadastroForm').reset();
+                    document.querySelectorAll('.taxa-option').forEach(el => el.classList.remove('selected'));
+                    document.querySelectorAll('.foto-preview').forEach(el => el.classList.remove('active'));
+                    document.querySelectorAll('.remove-foto').forEach(el => el.classList.remove('active'));
                 } else {
-                    resultado.className = 'result error';
-                    resultado.innerHTML = `
-                        <strong>❌ Erro!</strong><br>
-                        ${data.message}
-                    `;
+                    document.getElementById('erroMensagem').textContent = data.message || 'Não foi possível enviar os dados. Tente novamente.';
+                    mostrarModal('modalErro');
                 }
             } catch (error) {
-                resultado.style.display = 'block';
-                resultado.className = 'result error';
-                resultado.innerHTML = `
-                    <strong>❌ Erro de conexão!</strong><br>
-                    Verifique se a URL da API está correta.<br>
-                    <small>${error.message}</small>
-                `;
+                document.getElementById('erroMensagem').textContent = 'Erro de conexão. Verifique sua internet.';
+                mostrarModal('modalErro');
             } finally {
                 btn.disabled = false;
-                btnText.innerHTML = '<span>📨 Enviar Cadastro para Telegram</span>';
+                btnText.innerHTML = '<span>Enviar Cadastro</span>';
             }
         });
 
-        // Máscara para CNPJ
+        // Máscara CNPJ
         document.getElementById('cnpj').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             if (value.length <= 14) {
@@ -410,7 +633,7 @@
             e.target.value = value;
         });
 
-        // Máscara para CPF
+        // Máscara CPF
         document.getElementById('cpf').addEventListener('input', function(e) {
             let value = e.target.value.replace(/\D/g, '');
             if (value.length <= 11) {
@@ -421,7 +644,7 @@
             e.target.value = value;
         });
 
-        // Máscara para telefone
+        // Máscara telefone
         ['telProprietario', 'telLoja'].forEach(id => {
             document.getElementById(id).addEventListener('input', function(e) {
                 let value = e.target.value.replace(/\D/g, '');
