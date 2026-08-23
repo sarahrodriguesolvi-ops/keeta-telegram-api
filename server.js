@@ -155,15 +155,14 @@ app.get('/health', (req, res) => {
   res.json({ status: 'OK', timestamp: new Date().toISOString() });
 });
 
-// Rota raiz
+// Rota raiz - serve o formulário
 app.get('/', (req, res) => {
-  res.json({ 
-    message: 'API Keeta - Telegram',
-    endpoints: {
-      'POST /api/enviar-cadastro': 'Envia dados do formulário para o Telegram',
-      'GET /health': 'Verifica se a API está funcionando'
-    }
-  });
+  res.sendFile(path.join(__dirname, 'formulario.html'));
+});
+
+// Rota do formulário
+app.get('/formulario.html', (req, res) => {
+  res.sendFile(path.join(__dirname, 'formulario.html'));
 });
 
 // Iniciar servidor
