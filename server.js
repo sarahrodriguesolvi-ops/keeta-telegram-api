@@ -161,41 +161,23 @@ app.post('/api/enviar-cadastro', async (req, res) => {
         // Converter base64 para Buffer
         const buffer = Buffer.from(arquivo.base64, 'base64');
         
-        // Upload para tmp.link temporariamente e enviar URL para Telegram
-        const uploadResponse = await axios.post('https://tmp.link/upload.php', buffer, {
+        // Upload para Imgur (serviço mais confiável)
+        const uploadResponse = await axios.post('https://api.imgur.com/3/image', {
+          image: arquivo.base64,
+          type: 'base64'
+        }, {
           headers: {
-            'Content-Type': 'application/octet-stream'
+            'Authorization': 'Client-ID 546c25a59c58ad7'
           },
           maxBodyLength: 50 * 1024 * 1024,
           timeout: 30000
         });
         
-        let imageUrl = null;
-        if (uploadResponse.data && uploadResponse.data.url) {
-          imageUrl = uploadResponse.data.url;
-        } else if (uploadResponse.data && uploadResponse.data.link) {
-          imageUrl = uploadResponse.data.link;
+        if (!uploadResponse.data || !uploadResponse.data.success || !uploadResponse.data.data || !uploadResponse.data.data.link) {
+          throw new Error('Falha ao fazer upload da imagem para Imgur');
         }
         
-        if (!imageUrl) {
-          // Tentar com 0x0.st como fallback
-          const fallbackResponse = await axios.post('https://0x0.st', buffer, {
-            headers: {
-              'Content-Type': 'application/octet-stream'
-            },
-            maxBodyLength: 50 * 1024 * 1024,
-            timeout: 30000
-          });
-          
-          if (fallbackResponse.data) {
-            imageUrl = fallbackResponse.data.trim();
-          }
-        }
-        
-        if (!imageUrl) {
-          throw new Error('Falha ao fazer upload da imagem para serviços temporários');
-        }
-        
+        const imageUrl = uploadResponse.data.data.link;
         console.log(`Imagem uploadada: ${imageUrl}`);
         
         const urlFoto = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
