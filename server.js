@@ -92,6 +92,16 @@ function formatarMensagem(dados) {
   return mensagem;
 }
 
+// Função para extrair base64 e tipo MIME
+function extrairBase64(dataUrl) {
+  const matches = dataUrl.match(/^data:(.+);base64,(.+)$/);
+  if (!matches) return null;
+  return {
+    mimeType: matches[1],
+    base64: matches[2]
+  };
+}
+
 // Endpoint para receber dados do formulário
 app.post('/api/enviar-cadastro', async (req, res) => {
   try {
@@ -108,9 +118,6 @@ app.post('/api/enviar-cadastro', async (req, res) => {
       });
     }
 
-    // Formatar mensagem
-    const mensagem = formatarMensagem(req.body);
-
     // Enviar para o Telegram
     if (!TELEGRAM_BOT_TOKEN || !TELEGRAM_CHAT_ID) {
       console.error('Configuração do Telegram incompleta');
@@ -120,25 +127,75 @@ app.post('/api/enviar-cadastro', async (req, res) => {
       });
     }
 
-    const url = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
+    // 1. Enviar mensagem de texto primeiro
+    const mensagem = formatarMensagem(req.body);
+    const urlMensagem = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`;
     
-    const response = await axios.post(url, {
+    const responseMsg = await axios.post(urlMensagem, {
       chat_id: TELEGRAM_CHAT_ID,
       text: mensagem,
       parse_mode: 'Markdown',
       disable_web_page_preview: true
     });
 
-    if (response.data.ok) {
-      console.log('Mensagem enviada com sucesso para o Telegram');
-      return res.status(200).json({
-        success: true,
-        message: 'Cadastro enviado com sucesso para o Telegram!',
-        telegramMessageId: response.data.result.message_id
-      });
-    } else {
-      throw new Error('Resposta inesperada do Telegram');
+    if (!responseMsg.data.ok) {
+      throw new Error('Erro ao enviar mensagem de texto para o Telegram');
     }
+
+    // 2. Enviar fotos se houver
+    const fotos = req.body.fotos || {};
+    const fotosEnviadas = [];
+    const fotosErro = [];
+
+    for (const [nome, dataUrl] of Object.entries(fotos)) {
+      if (!dataUrl) continue;
+      
+      const arquivo = extrairBase64(dataUrl);
+      if (!arquivo) {
+        console.warn(`Formato inválido para foto: ${nome}`);
+        fotosErro.push(nome);
+        continue;
+      }
+
+      try {
+        const urlFoto = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
+        
+        // Converter base64 para Buffer e enviar como multipart/form-data
+        const buffer = Buffer.from(arquivo.base64, 'base64');
+        
+        const FormData = require('form-data');
+        const form = new FormData();
+        form.append('chat_id', TELEGRAM_CHAT_ID);
+        form.append('photo', buffer, {
+          filename: `${nome}.jpg`,
+          contentType: arquivo.mimeType || 'image/jpeg'
+        });
+        
+        const legenda = nome === 'fotoFaixa' ? '🖼️ Fachada da Loja' :
+                       nome === 'fotoInterior' ? '🖼️ Interior da Loja' :
+                       nome === 'fotoCardapio' ? '🖼️ Cardápio' : `🖼️ ${nome}`;
+        form.append('caption', legenda);
+
+        await axios.post(urlFoto, form, {
+          headers: form.getHeaders()
+        });
+        
+        fotosEnviadas.push(nome);
+        console.log(`Foto enviada com sucesso: ${nome}`);
+      } catch (erroFoto) {
+        console.error(`Erro ao enviar foto ${nome}:`, erroFoto.response?.data || erroFoto.message);
+        fotosErro.push(nome);
+      }
+    }
+
+    console.log('Mensagem e fotos enviadas com sucesso para o Telegram');
+    return res.status(200).json({
+      success: true,
+      message: 'Cadastro enviado com sucesso para o Telegram!',
+      telegramMessageId: responseMsg.data.result.message_id,
+      fotosEnviadas: fotosEnviadas,
+      fotosErro: fotosErro
+    });
 
   } catch (error) {
     console.error('Erro ao enviar para o Telegram:', error.response?.data || error.message);
