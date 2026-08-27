@@ -160,6 +160,7 @@ app.post('/api/enviar-cadastro', async (req, res) => {
       try {
         // Converter base64 para Buffer
         const buffer = Buffer.from(arquivo.base64, 'base64');
+        console.log(`Tamanho do buffer: ${buffer.length} bytes`);
         
         // Upload para Imgur
         const FormData = require('form-data');
@@ -170,6 +171,7 @@ app.post('/api/enviar-cadastro', async (req, res) => {
           knownLength: buffer.length
         });
         
+        console.log('Enviando para Imgur...');
         const uploadResponse = await axios.post('https://api.imgur.com/3/image', form, {
           headers: {
             'Authorization': 'Client-ID 546c25a59c58ad7',
@@ -178,6 +180,8 @@ app.post('/api/enviar-cadastro', async (req, res) => {
           maxBodyLength: 50 * 1024 * 1024,
           timeout: 30000
         });
+        
+        console.log('Resposta do Imgur:', JSON.stringify(uploadResponse.data));
         
         if (!uploadResponse.data || !uploadResponse.data.success || !uploadResponse.data.data || !uploadResponse.data.data.link) {
           console.error('Resposta do Imgur:', uploadResponse.data);
@@ -193,11 +197,14 @@ app.post('/api/enviar-cadastro', async (req, res) => {
                        nome === 'fotoInterior' ? '🖼️ Interior da Loja' :
                        nome === 'fotoCardapio' ? '🖼️ Cardápio' : `🖼️ ${nome}`;
         
+        console.log('Enviando foto para Telegram...');
         const response = await axios.post(urlFoto, {
           chat_id: TELEGRAM_CHAT_ID,
           photo: imageUrl,
           caption: legenda
         });
+        
+        console.log('Resposta do Telegram:', JSON.stringify(response.data));
         
         if (response.data && response.data.ok) {
           fotosEnviadas.push(nome);
