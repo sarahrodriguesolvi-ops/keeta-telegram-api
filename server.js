@@ -158,48 +158,42 @@ app.post('/api/enviar-cadastro', async (req, res) => {
       }
 
       try {
-        // Usar sendDocument que é mais confiável para arquivos binários
-        const urlFoto = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument`;
-        
         // Converter base64 para Buffer
         const buffer = Buffer.from(arquivo.base64, 'base64');
         
-        // Criar FormData manualmente
-        const boundary = '----FormBoundary' + Math.random().toString(36).substring(2);
+        // Fazer upload da imagem para um serviço temporário (file.io) e enviar URL
+        // Como alternativa, vamos usar o sendPhoto com a foto em base64 via multipart correto
+        const urlFoto = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
         
         const legenda = nome === 'fotoFaixa' ? '🖼️ Fachada da Loja' :
                        nome === 'fotoInterior' ? '🖼️ Interior da Loja' :
                        nome === 'fotoCardapio' ? '🖼️ Cardápio' : `🖼️ ${nome}`;
         
-        // Construir body multipart manualmente
-        const parts = [];
+        // Usar FormData nativo do Node.js com stream
+        const FormData = require('form-data');
+        const form = new FormData();
+        form.append('chat_id', TELEGRAM_CHAT_ID);
+        form.append('caption', legenda);
         
-        // chat_id
-        parts.push(Buffer.from(`--${boundary}\r\n`));
-        parts.push(Buffer.from(`Content-Disposition: form-data; name="chat_id"\r\n\r\n`));
-        parts.push(Buffer.from(`${TELEGRAM_CHAT_ID}\r\n`));
+        // Criar um stream a partir do buffer
+        const { Readable } = require('stream');
+        const stream = new Readable();
+        stream.push(buffer);
+        stream.push(null);
         
-        // caption
-        parts.push(Buffer.from(`--${boundary}\r\n`));
-        parts.push(Buffer.from(`Content-Disposition: form-data; name="caption"\r\n\r\n`));
-        parts.push(Buffer.from(`${legenda}\r\n`));
+        form.append('photo', stream, {
+          filename: `${nome}.jpg`,
+          contentType: 'image/jpeg',
+          knownLength: buffer.length
+        });
         
-        // document (arquivo)
-        parts.push(Buffer.from(`--${boundary}\r\n`));
-        parts.push(Buffer.from(`Content-Disposition: form-data; name="document"; filename="${nome}.jpg"\r\n`));
-        parts.push(Buffer.from(`Content-Type: image/jpeg\r\n\r\n`));
-        parts.push(buffer);
-        parts.push(Buffer.from(`\r\n--${boundary}--\r\n`));
-        
-        const bodyBuffer = Buffer.concat(parts);
-        
-        const response = await axios.post(urlFoto, bodyBuffer, {
+        const response = await axios.post(urlFoto, form, {
           headers: {
-            'Content-Type': `multipart/form-data; boundary=${boundary}`,
-            'Content-Length': bodyBuffer.length
+            ...form.getHeaders()
           },
           maxBodyLength: 50 * 1024 * 1024,
-          maxContentLength: 50 * 1024 * 1024
+          maxContentLength: 50 * 1024 * 1024,
+          timeout: 30000
         });
         
         if (response.data && response.data.ok) {
