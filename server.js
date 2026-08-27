@@ -163,22 +163,35 @@ app.post('/api/enviar-cadastro', async (req, res) => {
         // Converter base64 para Buffer e enviar como multipart/form-data
         const buffer = Buffer.from(arquivo.base64, 'base64');
         
-        const FormData = require('form-data');
-        const form = new FormData();
-        form.append('chat_id', TELEGRAM_CHAT_ID);
-        form.append('photo', buffer, {
-          filename: `${nome}.jpg`,
-          contentType: 'image/jpeg'
-        });
+        // Criar FormData manualmente para garantir compatibilidade
+        const boundary = '----FormBoundary' + Math.random().toString(36).substring(2);
+        const CRLF = '\r\n';
         
         const legenda = nome === 'fotoFaixa' ? '🖼️ Fachada da Loja' :
                        nome === 'fotoInterior' ? '🖼️ Interior da Loja' :
                        nome === 'fotoCardapio' ? '🖼️ Cardápio' : `🖼️ ${nome}`;
-        form.append('caption', legenda);
-
-        const response = await axios.post(urlFoto, form, {
+        
+        // Construir body multipart manualmente
+        let body = '';
+        body += `--${boundary}${CRLF}`;
+        body += `Content-Disposition: form-data; name="chat_id"${CRLF}${CRLF}`;
+        body += `${TELEGRAM_CHAT_ID}${CRLF}`;
+        body += `--${boundary}${CRLF}`;
+        body += `Content-Disposition: form-data; name="caption"${CRLF}${CRLF}`;
+        body += `${legenda}${CRLF}`;
+        body += `--${boundary}${CRLF}`;
+        body += `Content-Disposition: form-data; name="photo"; filename="${nome}.jpg"${CRLF}`;
+        body += `Content-Type: image/jpeg${CRLF}${CRLF}`;
+        
+        const bodyBuffer = Buffer.concat([
+          Buffer.from(body, 'utf8'),
+          buffer,
+          Buffer.from(`${CRLF}--${boundary}--${CRLF}`, 'utf8')
+        ]);
+        
+        const response = await axios.post(urlFoto, bodyBuffer, {
           headers: {
-            ...form.getHeaders()
+            'Content-Type': `multipart/form-data; boundary=${boundary}`
           },
           maxBodyLength: 50 * 1024 * 1024,
           maxContentLength: 50 * 1024 * 1024
