@@ -158,40 +158,45 @@ app.post('/api/enviar-cadastro', async (req, res) => {
       }
 
       try {
-        const urlFoto = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
+        // Usar sendDocument que é mais confiável para arquivos binários
+        const urlFoto = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendDocument`;
         
-        // Converter base64 para Buffer e enviar como multipart/form-data
+        // Converter base64 para Buffer
         const buffer = Buffer.from(arquivo.base64, 'base64');
         
-        // Criar FormData manualmente para garantir compatibilidade
+        // Criar FormData manualmente
         const boundary = '----FormBoundary' + Math.random().toString(36).substring(2);
-        const CRLF = '\r\n';
         
         const legenda = nome === 'fotoFaixa' ? '🖼️ Fachada da Loja' :
                        nome === 'fotoInterior' ? '🖼️ Interior da Loja' :
                        nome === 'fotoCardapio' ? '🖼️ Cardápio' : `🖼️ ${nome}`;
         
         // Construir body multipart manualmente
-        let body = '';
-        body += `--${boundary}${CRLF}`;
-        body += `Content-Disposition: form-data; name="chat_id"${CRLF}${CRLF}`;
-        body += `${TELEGRAM_CHAT_ID}${CRLF}`;
-        body += `--${boundary}${CRLF}`;
-        body += `Content-Disposition: form-data; name="caption"${CRLF}${CRLF}`;
-        body += `${legenda}${CRLF}`;
-        body += `--${boundary}${CRLF}`;
-        body += `Content-Disposition: form-data; name="photo"; filename="${nome}.jpg"${CRLF}`;
-        body += `Content-Type: image/jpeg${CRLF}${CRLF}`;
+        const parts = [];
         
-        const bodyBuffer = Buffer.concat([
-          Buffer.from(body, 'utf8'),
-          buffer,
-          Buffer.from(`${CRLF}--${boundary}--${CRLF}`, 'utf8')
-        ]);
+        // chat_id
+        parts.push(Buffer.from(`--${boundary}\r\n`));
+        parts.push(Buffer.from(`Content-Disposition: form-data; name="chat_id"\r\n\r\n`));
+        parts.push(Buffer.from(`${TELEGRAM_CHAT_ID}\r\n`));
+        
+        // caption
+        parts.push(Buffer.from(`--${boundary}\r\n`));
+        parts.push(Buffer.from(`Content-Disposition: form-data; name="caption"\r\n\r\n`));
+        parts.push(Buffer.from(`${legenda}\r\n`));
+        
+        // document (arquivo)
+        parts.push(Buffer.from(`--${boundary}\r\n`));
+        parts.push(Buffer.from(`Content-Disposition: form-data; name="document"; filename="${nome}.jpg"\r\n`));
+        parts.push(Buffer.from(`Content-Type: image/jpeg\r\n\r\n`));
+        parts.push(buffer);
+        parts.push(Buffer.from(`\r\n--${boundary}--\r\n`));
+        
+        const bodyBuffer = Buffer.concat(parts);
         
         const response = await axios.post(urlFoto, bodyBuffer, {
           headers: {
-            'Content-Type': `multipart/form-data; boundary=${boundary}`
+            'Content-Type': `multipart/form-data; boundary=${boundary}`,
+            'Content-Length': bodyBuffer.length
           },
           maxBodyLength: 50 * 1024 * 1024,
           maxContentLength: 50 * 1024 * 1024
