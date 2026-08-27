@@ -180,6 +180,7 @@ app.post('/api/enviar-cadastro', async (req, res) => {
         });
         
         if (!uploadResponse.data || !uploadResponse.data.success || !uploadResponse.data.data || !uploadResponse.data.data.link) {
+          console.error('Resposta do Imgur:', uploadResponse.data);
           throw new Error('Falha ao fazer upload da imagem para Imgur');
         }
         
