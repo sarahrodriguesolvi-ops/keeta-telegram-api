@@ -161,39 +161,35 @@ app.post('/api/enviar-cadastro', async (req, res) => {
         // Converter base64 para Buffer
         const buffer = Buffer.from(arquivo.base64, 'base64');
         
-        // Fazer upload da imagem para um serviço temporário (file.io) e enviar URL
-        // Como alternativa, vamos usar o sendPhoto com a foto em base64 via multipart correto
+        // Upload para file.io temporariamente e enviar URL para Telegram
+        const uploadResponse = await axios.post('https://file.io', buffer, {
+          headers: {
+            'Content-Type': 'application/octet-stream'
+          },
+          params: {
+            expires: '1d'
+          },
+          maxBodyLength: 50 * 1024 * 1024,
+          timeout: 30000
+        });
+        
+        if (!uploadResponse.data || !uploadResponse.data.link) {
+          throw new Error('Falha ao fazer upload da imagem');
+        }
+        
+        const imageUrl = uploadResponse.data.link;
+        console.log(`Imagem uploadada: ${imageUrl}`);
+        
         const urlFoto = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
         
         const legenda = nome === 'fotoFaixa' ? '🖼️ Fachada da Loja' :
                        nome === 'fotoInterior' ? '🖼️ Interior da Loja' :
                        nome === 'fotoCardapio' ? '🖼️ Cardápio' : `🖼️ ${nome}`;
         
-        // Usar FormData nativo do Node.js com stream
-        const FormData = require('form-data');
-        const form = new FormData();
-        form.append('chat_id', TELEGRAM_CHAT_ID);
-        form.append('caption', legenda);
-        
-        // Criar um stream a partir do buffer
-        const { Readable } = require('stream');
-        const stream = new Readable();
-        stream.push(buffer);
-        stream.push(null);
-        
-        form.append('photo', stream, {
-          filename: `${nome}.jpg`,
-          contentType: 'image/jpeg',
-          knownLength: buffer.length
-        });
-        
-        const response = await axios.post(urlFoto, form, {
-          headers: {
-            ...form.getHeaders()
-          },
-          maxBodyLength: 50 * 1024 * 1024,
-          maxContentLength: 50 * 1024 * 1024,
-          timeout: 30000
+        const response = await axios.post(urlFoto, {
+          chat_id: TELEGRAM_CHAT_ID,
+          photo: imageUrl,
+          caption: legenda
         });
         
         if (response.data && response.data.ok) {
