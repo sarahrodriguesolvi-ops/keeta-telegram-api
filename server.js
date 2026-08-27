@@ -161,23 +161,41 @@ app.post('/api/enviar-cadastro', async (req, res) => {
         // Converter base64 para Buffer
         const buffer = Buffer.from(arquivo.base64, 'base64');
         
-        // Upload para file.io temporariamente e enviar URL para Telegram
-        const uploadResponse = await axios.post('https://file.io', buffer, {
+        // Upload para tmp.link temporariamente e enviar URL para Telegram
+        const uploadResponse = await axios.post('https://tmp.link/upload.php', buffer, {
           headers: {
             'Content-Type': 'application/octet-stream'
-          },
-          params: {
-            expires: '1d'
           },
           maxBodyLength: 50 * 1024 * 1024,
           timeout: 30000
         });
         
-        if (!uploadResponse.data || !uploadResponse.data.link) {
-          throw new Error('Falha ao fazer upload da imagem');
+        let imageUrl = null;
+        if (uploadResponse.data && uploadResponse.data.url) {
+          imageUrl = uploadResponse.data.url;
+        } else if (uploadResponse.data && uploadResponse.data.link) {
+          imageUrl = uploadResponse.data.link;
         }
         
-        const imageUrl = uploadResponse.data.link;
+        if (!imageUrl) {
+          // Tentar com 0x0.st como fallback
+          const fallbackResponse = await axios.post('https://0x0.st', buffer, {
+            headers: {
+              'Content-Type': 'application/octet-stream'
+            },
+            maxBodyLength: 50 * 1024 * 1024,
+            timeout: 30000
+          });
+          
+          if (fallbackResponse.data) {
+            imageUrl = fallbackResponse.data.trim();
+          }
+        }
+        
+        if (!imageUrl) {
+          throw new Error('Falha ao fazer upload da imagem para serviços temporários');
+        }
+        
         console.log(`Imagem uploadada: ${imageUrl}`);
         
         const urlFoto = `https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendPhoto`;
