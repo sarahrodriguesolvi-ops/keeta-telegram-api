@@ -161,13 +161,19 @@ app.post('/api/enviar-cadastro', async (req, res) => {
         // Converter base64 para Buffer
         const buffer = Buffer.from(arquivo.base64, 'base64');
         
-        // Upload para Imgur (serviço mais confiável)
-        const uploadResponse = await axios.post('https://api.imgur.com/3/image', {
-          image: arquivo.base64,
-          type: 'base64'
-        }, {
+        // Upload para Imgur
+        const FormData = require('form-data');
+        const form = new FormData();
+        form.append('image', buffer, {
+          filename: `${nome}.jpg`,
+          contentType: 'image/jpeg',
+          knownLength: buffer.length
+        });
+        
+        const uploadResponse = await axios.post('https://api.imgur.com/3/image', form, {
           headers: {
-            'Authorization': 'Client-ID 546c25a59c58ad7'
+            'Authorization': 'Client-ID 546c25a59c58ad7',
+            ...form.getHeaders()
           },
           maxBodyLength: 50 * 1024 * 1024,
           timeout: 30000
