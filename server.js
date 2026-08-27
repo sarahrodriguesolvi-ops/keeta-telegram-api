@@ -168,7 +168,7 @@ app.post('/api/enviar-cadastro', async (req, res) => {
         form.append('chat_id', TELEGRAM_CHAT_ID);
         form.append('photo', buffer, {
           filename: `${nome}.jpg`,
-          contentType: arquivo.mimeType || 'image/jpeg'
+          contentType: 'image/jpeg'
         });
         
         const legenda = nome === 'fotoFaixa' ? '🖼️ Fachada da Loja' :
@@ -176,12 +176,21 @@ app.post('/api/enviar-cadastro', async (req, res) => {
                        nome === 'fotoCardapio' ? '🖼️ Cardápio' : `🖼️ ${nome}`;
         form.append('caption', legenda);
 
-        await axios.post(urlFoto, form, {
-          headers: form.getHeaders()
+        const response = await axios.post(urlFoto, form, {
+          headers: {
+            ...form.getHeaders()
+          },
+          maxBodyLength: 50 * 1024 * 1024,
+          maxContentLength: 50 * 1024 * 1024
         });
         
-        fotosEnviadas.push(nome);
-        console.log(`Foto enviada com sucesso: ${nome}`);
+        if (response.data && response.data.ok) {
+          fotosEnviadas.push(nome);
+          console.log(`Foto enviada com sucesso: ${nome}`);
+        } else {
+          console.error(`Resposta inesperada do Telegram para ${nome}:`, response.data);
+          fotosErro.push(nome);
+        }
       } catch (erroFoto) {
         console.error(`Erro ao enviar foto ${nome}:`, erroFoto.response?.data || erroFoto.message);
         fotosErro.push(nome);
