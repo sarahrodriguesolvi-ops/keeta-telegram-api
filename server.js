@@ -36,10 +36,10 @@ function formatarMensagem(dados) {
     agencia,
     conta,
     titular,
+    email,
     sistema,
     taxaKeeta,
-    taxaIfood,
-    observacoes
+    isencao
   } = dados;
 
   let mensagem = '';
@@ -60,7 +60,8 @@ function formatarMensagem(dados) {
   // Proprietário e Contatos
   mensagem += `👨‍💼 *Proprietário:* ${proprietario || 'Não informado'}\n`;
   mensagem += `📱 *Tel. Proprietário:* ${telProprietario || 'Não informado'}\n`;
-  mensagem += `☎️ *Tel. Loja:* ${telLoja || 'Não informado'}\n\n`;
+  mensagem += `☎️ *Tel. Loja:* ${telLoja || 'Não informado'}\n`;
+  mensagem += `📧 *Email:* ${email || 'Não informado'}\n\n`;
 
   // Documentos
   mensagem += `🏛️ *CNPJ:* ${cnpj || 'Não informado'}\n`;
@@ -79,12 +80,7 @@ function formatarMensagem(dados) {
   // Sistema e Taxas
   mensagem += `💻 *Sistema:* ${sistema || 'Não informado'}\n`;
   mensagem += `📊 *Taxa Keeta:* ${taxaKeeta || 'Não informado'}\n`;
-  mensagem += `📊 *Taxa iFood:* ${taxaIfood || 'Não informado'}\n\n`;
-
-  // Observações
-  if (observacoes) {
-    mensagem += `📝 *Observações:*\n${observacoes}\n\n`;
-  }
+  mensagem += `💰 *Isenção de taxa:* ${isencao || 'Não'}\n\n`;
 
   mensagem += '━━━━━━━━━━━━━━━━━━━━━━\n';
   mensagem += `📅 *Data:* ${new Date().toLocaleString('pt-BR')}`;
