@@ -17,6 +17,12 @@ app.use(cors({
 app.use(bodyParser.json({ limit: '50mb' }));
 app.use(bodyParser.urlencoded({ extended: true, limit: '50mb' }));
 
+// Middleware para log de requisições
+app.use((req, res, next) => {
+  console.log(`${new Date().toISOString()} - ${req.method} ${req.url} - Origin: ${req.headers.origin || 'N/A'}`);
+  next();
+});
+
 // Servir arquivos estáticos
 app.use(express.static(path.join(__dirname)));
 
